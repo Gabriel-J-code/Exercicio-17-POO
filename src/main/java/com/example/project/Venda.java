@@ -14,7 +14,28 @@ public class Venda {
     private String coo;
     private ArrayList<ItemVenda> itens;
     private Pagamento pagamento;
+    private Imposto imposto;       
 
+    public Venda(Loja loja, Calendar DataHora, String ccf, String coo) {
+        this.loja = loja;
+        this.DataHora = DataHora;
+        this.ccf = ccf;
+        this.coo = coo;
+        this.itens = new ArrayList<ItemVenda>();
+        this.pagamento = new Pagamento(0);      
+    }
+
+    public Venda(Loja loja, Calendar DataHora, String ccf, String coo,Imposto imposto){
+        this(loja, DataHora, ccf, coo);
+        this.imposto = imposto;
+    }
+    
+    public Imposto getImposto() {
+        return this.imposto;        
+    }
+    public void setImposto(Imposto imposto) {
+        this.imposto = imposto;        
+    }
     public Pagamento getPagamento(){
         return this.pagamento;        
     }
@@ -32,15 +53,6 @@ public class Venda {
     }
     public ArrayList<ItemVenda> getItens(){
         return itens;
-    }   
-
-    public Venda(Loja loja, Calendar DataHora, String ccf, String coo) {
-        this.loja = loja;
-        this.DataHora = DataHora;
-        this.ccf = ccf;
-        this.coo = coo;
-        this.itens = new ArrayList<ItemVenda>();
-        this.pagamento = new Pagamento(0);      
     }
 
     public String dadosVenda() {
@@ -129,8 +141,6 @@ public class Venda {
     }
 
     public String dadosImposto(){
-        Imposto imposto = loja.getImposto();
-
         StringBuilder dados = new StringBuilder();
 
         dados.append(imposto.getLei());
