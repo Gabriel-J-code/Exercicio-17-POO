@@ -35,7 +35,8 @@ public class TestVenda {
 	private String TELEFONE = "(11) 1111-1111";
 	private String OBSERVACAO = "Obs 1";
 	private String CNPJ = "11.111.111/1111-11";
-	private String INSCRICAO_ESTADUAL = "123456789";
+    private String INSCRICAO_ESTADUAL = "123456789";
+    
 
 	Loja LOJA_COMPLETA = new Loja(NOME_LOJA,
 				new Endereco(LOGRADOURO, NUMERO, COMPLEMENTO, BAIRRO, MUNICIPIO, ESTADO, CEP), TELEFONE, OBSERVACAO,
@@ -75,7 +76,7 @@ public class TestVenda {
     //tests dados itens
     public void verifica_campo_obrigatorio_itens_venda(String mensagemEsperada, Venda venda){
         try {
-			venda.dados_itens();
+			venda.dadosItens();
 		} catch (RuntimeException e) {
 			assertEquals(mensagemEsperada, e.getMessage());
 		}        
@@ -94,9 +95,9 @@ public class TestVenda {
     @Test
     public void test_itens_venda(){
         Venda venda = LOJA_COMPLETA.vender(datahora,ccf,coo);
-        venda.adicionar_item(1,produto1,2);
-        venda.adicionar_item(2,produto2,4);
-        assertEquals(TEXTO_ESPERADO_DADOS_ITEM_fUNCIONAL, venda.dados_itens());
+        venda.adicionarItem(1,produto1,2);
+        venda.adicionarItem(2,produto2,4);
+        assertEquals(TEXTO_ESPERADO_DADOS_ITEM_fUNCIONAL, venda.dadosItens());
     }
 
     //Venda sem itens - o cupom fiscal não pode ser impresso
@@ -110,9 +111,9 @@ public class TestVenda {
     @Test
     public void test_venda_2_itens_mesmo_produto(){
         Venda VENDA_2_ITENS_MESMO_PRODUTO = LOJA_COMPLETA.vender(datahora,ccf,coo);
-        VENDA_2_ITENS_MESMO_PRODUTO.adicionar_item(1,produto1,2);
+        VENDA_2_ITENS_MESMO_PRODUTO.adicionarItem(1,produto1,2);
         try{
-            VENDA_2_ITENS_MESMO_PRODUTO.adicionar_item(2,produto1,3);
+            VENDA_2_ITENS_MESMO_PRODUTO.adicionarItem(2,produto1,3);
         }catch (RuntimeException e) {
             assertEquals("A venda ja possui um item com o produto", e.getMessage());
         }
@@ -123,7 +124,7 @@ public class TestVenda {
     public void test_venda_itens_quant_0(){
         Venda VendaItemQuant0 = LOJA_COMPLETA.vender(datahora,ccf,coo);
         try{
-            VendaItemQuant0.adicionar_item(1,produto1,0);
+            VendaItemQuant0.adicionarItem(1,produto1,0);
         }catch (RuntimeException e) {
             assertEquals( "Itens com quantidade invalida (0 ou negativa)", e.getMessage());
         }
@@ -135,7 +136,7 @@ public class TestVenda {
         Venda VENDA_ITEM_PRODUTO_SEM_VALOR = LOJA_COMPLETA.vender(datahora,ccf,coo);
         Produto PRODUTO_SEM_VALOR = new Produto(000000, "Produto0", "nenhum", 0.0, "");
         try{
-            VENDA_ITEM_PRODUTO_SEM_VALOR.adicionar_item(1,PRODUTO_SEM_VALOR,1);
+            VENDA_ITEM_PRODUTO_SEM_VALOR.adicionarItem(1,PRODUTO_SEM_VALOR,1);
         }catch (RuntimeException e) {
             assertEquals("Produto com valor invalido (0 ou negativo)", e.getMessage());
         }
@@ -154,7 +155,7 @@ public class TestVenda {
     String PagamentoSemTrocoCredito = "Cartao de credito 12.74";
     String PagamentoSemTrocoDebito = "Cartao de debito 12.74";
     @Test
-    public void PagamentoSemTroco(){
+    public void testPagamentoSemTroco(){
         Pagamento pagamentoDin = new Pagamento(valorTotal);
         pagamentoDin.efetuar(valorTotal, tipoDinheiro);        
         assertEquals(PagamentoSemTrocoDinheiro, pagamentoDin.imprimir());
@@ -170,14 +171,14 @@ public class TestVenda {
     String PagamentoComTroco = "Dinheiro 20.00" + BREAK +
     "Troco R$ 7.26";
     @Test
-    public void PagamentoComTroco(){
+    public void testPagamentoComTroco(){
         Pagamento pagamentoTroco = new Pagamento(valorTotal);
         pagamentoTroco.efetuar(pagamento, tipoDinheiro);        
         assertEquals(PagamentoComTroco, pagamentoTroco.imprimir());
     }
     //pagamento tipo invalido
     @Test
-    public void PagamentoTipoInvalido(){
+    public void testPagamentoTipoInvalido(){
         Pagamento pagamentoTipoIvalido = new Pagamento(valorTotal);
         try{
             pagamentoTipoIvalido.efetuar(pagamento, "");
@@ -188,7 +189,7 @@ public class TestVenda {
 
     //pagamento insuficiente
     @Test
-    public void PagamentoInsuficiente(){
+    public void testPagamentoInsuficiente(){
         Pagamento pagamentoTipoIvalido = new Pagamento(valorTotal);
         try{
             pagamentoTipoIvalido.efetuar(pagamento - 1.0, tipoDinheiro);
@@ -198,7 +199,7 @@ public class TestVenda {
     }
     //impressão sem estar pago
     @Test
-    public void PagamentoNaoPago(){
+    public void testPagamentoNaoPago(){
         Pagamento pagamentoNaoPago = new Pagamento(valorTotal);
         try{
             pagamentoNaoPago.imprimir();
@@ -206,31 +207,69 @@ public class TestVenda {
             assertEquals("O pagamento ainda não foi efetuado", e.getMessage());
         }
     }
+    //testes imposto
+    String lei = "Lei 12.741";
+    Double taxaFederal = 7.54;
+    Double taxaEstadual = 4.81;
+    Imposto IMPOSTO = new Imposto(lei, taxaFederal, taxaEstadual);
+    //dadosImposto da venda
+    Loja LOJA_COMPLETA_COM_IMPOSTO = new Loja(NOME_LOJA,
+    new Endereco(LOGRADOURO, NUMERO, COMPLEMENTO, BAIRRO, MUNICIPIO, ESTADO, CEP), TELEFONE, OBSERVACAO,
+    CNPJ, INSCRICAO_ESTADUAL,IMPOSTO);
+    String IMPOSTO_ESPERADO = "Lei 12.741, Valor aprox., Imposto F=0.96 (7.54%), E=0.61 (4.81%)";
+    
+    @Test
+    public void testVendaDadosImposto(){        
+        Venda venda = LOJA_COMPLETA_COM_IMPOSTO.vender(datahora,ccf,coo);
+        venda.adicionarItem(1,produto1,2);
+        venda.adicionarItem(2,produto2,4);
+        assertEquals(IMPOSTO_ESPERADO,venda.dadosImposto());
+    }
+    //imposto com taxaFederal invalida
+    @Test
+    public void testImpostoTaxaFederalInvalida(){        
+        try {
+            Imposto impostoTaxaFederalInvalida = new Imposto(lei, -10.0, taxaEstadual);
+        } catch (RuntimeException e) {
+            assertEquals("Taxa federal invalida", e.getMessage());
+        }
+    }
+
+    //imposto com taxaEstadual invalida
+    @Test
+    public void testImpostoTaxaEstadualInvalida(){        
+        try {
+            Imposto impostoTaxaEstadualInvalida = new Imposto(lei, taxaFederal, -10.0);
+        } catch (RuntimeException e) {
+            assertEquals("Taxa estadual invalida", e.getMessage());
+        }
+    }
 
     //cupom complemento
-    String TEXTO_ESPERADO_CUPOM_FISCAL = "Loja 1"+ BREAK +
-    "Log 1, 10 C1"+ BREAK +
-    "Bai 1 - Mun 1 - E1"+ BREAK +
-    "CEP:11111-111 Tel (11) 1111-1111"+ BREAK +
-    "Obs 1"+ BREAK +
-    "CNPJ: 11.111.111/1111-11"+ BREAK +
-    "IE: 123456789"+ BREAK +
-    "------------------------------"+ BREAK +
-    "29/10/2015 11:09:47V CCF:021784 COO:035804"+ BREAK +
-    "   CUPOM FISCAL"+ BREAK +
-    "ITEM CODIGO DESCRICAO QTD UN VL UNIT(R$) ST VL ITEM(R$)"+ BREAK +
-    "1 123456 Produto1 2 kg 4.35  8.70"+ BREAK +
-    "2 234567 Produto2 4 m 1.01  4.04"+ BREAK +
-    "------------------------------"+ BREAK +
-    "TOTAL R$ 12.74"+ BREAK +
-    "Dinheiro 20.00"+ BREAK +
-    "Troco R$ 7.26";
+    String TEXTO_ESPERADO_CUPOM_FISCAL = "Loja 1" + BREAK +
+    "Log 1, 10 C1" + BREAK +
+    "Bai 1 - Mun 1 - E1" + BREAK +
+    "CEP:11111-111 Tel (11) 1111-1111" + BREAK +
+    "Obs 1" + BREAK +
+    "CNPJ: 11.111.111/1111-11" + BREAK +
+    "IE: 123456789" + BREAK +
+    "------------------------------" + BREAK +
+    "29/10/2015 11:09:47V CCF:021784 COO:035804" + BREAK +
+    "   CUPOM FISCAL" + BREAK +
+    "ITEM CODIGO DESCRICAO QTD UN VL UNIT(R$) ST VL ITEM(R$)" + BREAK +
+    "1 123456 Produto1 2 kg 4.35  8.70" + BREAK +
+    "2 234567 Produto2 4 m 1.01  4.04" + BREAK +
+    "------------------------------" + BREAK +
+    "TOTAL R$ 12.74" + BREAK +
+    "Dinheiro 20.00" + BREAK +
+    "Troco R$ 7.26" + BREAK +
+    "Lei 12.741, Valor aprox., Imposto F=0.96 (7.54%), E=0.61 (4.81%)";
     @Test
     public void test_venda_imprimir_cupom(){
-        Venda venda = LOJA_COMPLETA.vender(datahora,ccf,coo);
-        venda.adicionar_item(1,produto1,2);
-        venda.adicionar_item(2,produto2,4);        
+        Venda venda = LOJA_COMPLETA_COM_IMPOSTO.vender(datahora,ccf,coo);
+        venda.adicionarItem(1,produto1,2);
+        venda.adicionarItem(2,produto2,4);        
         venda.pagar(pagamento, tipoDinheiro);
-        assertEquals(TEXTO_ESPERADO_CUPOM_FISCAL, venda.imprimir_cupom());
+        assertEquals(TEXTO_ESPERADO_CUPOM_FISCAL, venda.imprimirCupom());
     }
 }

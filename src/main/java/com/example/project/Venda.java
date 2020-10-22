@@ -69,13 +69,13 @@ public class Venda {
 		return false;
 	}
 
-    public void adicionar_item(int item, Produto produto,int quantidade){
-		validar_item(produto, quantidade);		
-		ItemVenda item_venda = new ItemVenda(this, item, produto, quantidade);
-        itens.add(item_venda);
+    public void adicionarItem(int item, Produto produto,int quantidade){
+		validarItem(produto, quantidade);		
+		ItemVenda itemVenda = new ItemVenda(this, item, produto, quantidade);
+        itens.add(itemVenda);
     }
 
-	private void validar_item(Produto produto, int quantidade){
+	private void validarItem(Produto produto, int quantidade){
 		//Venda com dois itens diferentes apontando para o mesmo produto
 		for (ItemVenda i : itens){
 			if (produto == i.getProduto()){
@@ -87,57 +87,63 @@ public class Venda {
             throw new RuntimeException("Itens com quantidade invalida (0 ou negativa)");
         }
 		//Produto com valor unitário zero ou negativo - item não pode ser adicionado na venda com produto nesse estado
-		if (produto.getValor_unitario() <= 0){
+		if (produto.getValorUnitario() <= 0){
             throw new RuntimeException("Produto com valor invalido (0 ou negativo)");
         }
     }
             
-    public String dados_itens(){
+    public String dadosItens(){
         if (itens.size() == 0){
             throw new RuntimeException("Não há itens na venda para que possa ser impressa");
-        }
-        DecimalFormatSymbols dfs = new DecimalFormatSymbols(Locale.US);
-        dfs.setDecimalSeparator('.');
-        DecimalFormat dFormat = new DecimalFormat("#.00");
-        dFormat.setDecimalFormatSymbols(dfs);
+        }      
 
         String BREAK = System.lineSeparator(); 
 
         StringBuilder dados = new StringBuilder();
         dados.append("ITEM CODIGO DESCRICAO QTD UN VL UNIT(R$) ST VL ITEM(R$)");
-        for (ItemVenda item_linha : itens){
-            Produto p = item_linha.getProduto();
+        for (ItemVenda itemLinha : itens){
+            Produto p = itemLinha.getProduto();
 
-            String valor_item = dFormat.format(item_linha.getQuantidade() * item_linha.getProduto().getValor_unitario());
+            String valorItem = decimalFormat(itemLinha.getQuantidade() * itemLinha.getProduto().getValorUnitario());
 
-            String valor_unitario = dFormat.format(item_linha.getProduto().getValor_unitario());
+            String valorUnitario = decimalFormat(itemLinha.getProduto().getValorUnitario());
 
-            String linha = String.format("%d %d %s %d %s %s %s %s",item_linha.getItem(),p.getCodigo(),p.getDescricao(),item_linha.getQuantidade(),p.getUnidade(),valor_unitario,p.getSubstituicao_tributaria(),valor_item);
+            String linha = String.format("%d %d %s %d %s %s %s %s",itemLinha.getItem(),p.getCodigo(),p.getDescricao(),itemLinha.getQuantidade(),p.getUnidade(),valorUnitario,p.getSubstituicaoTributaria(),valorItem);
 
             dados.append(BREAK + linha);
         }
         return dados.toString();
     }
 
-    public double calcular_total(){
+    public double calcularTotal(){
         Double total = 0.0;
-        for (ItemVenda item_linha : itens){
-            total += (item_linha.getQuantidade() * item_linha.getProduto().getValor_unitario());
+        for (ItemVenda itemLinha : itens){
+            total += (itemLinha.getQuantidade() * itemLinha.getProduto().getValorUnitario());
         }        
         return total;
     }
 
     public void pagar(double valorRecebido, String tipo){
-        pagamento.setTotal(calcular_total());
+        pagamento.setTotal(calcularTotal());
         pagamento.efetuar(valorRecebido, tipo);
     }
 
-    public String imprimir_cupom(){	
+    public String dadosImposto(){
+        Imposto imposto = loja.getImposto();
 
-        DecimalFormatSymbols dfs = new DecimalFormatSymbols(Locale.US);
-        dfs.setDecimalSeparator('.');
-        DecimalFormat dFormat = new DecimalFormat("#.00");
-        dFormat.setDecimalFormatSymbols(dfs);
+        StringBuilder dados = new StringBuilder();
+
+        dados.append(imposto.getLei());
+        dados.append(", Valor aprox., Imposto");
+        dados.append(" F="+decimalFormat(imposto.calcularImpostoFederal(calcularTotal())));
+        dados.append(String.format(" (%s%%)",decimalFormat(imposto.getTaxaFederal())));
+        dados.append(", E=" +decimalFormat(imposto.calcularImpostoEstadual(calcularTotal())));
+        dados.append(String.format(" (%s%%)",decimalFormat(imposto.getTaxaEstadual())));
+        
+        return dados.toString();     
+    }
+
+    public String imprimirCupom(){        
 
         String BREAK = System.lineSeparator();
 
@@ -146,11 +152,20 @@ public class Venda {
         cupom.append("------------------------------"+ BREAK);
         cupom.append(dadosVenda()+ BREAK);
         cupom.append("   CUPOM FISCAL"+ BREAK);
-        cupom.append(dados_itens()+ BREAK);
+        cupom.append(dadosItens()+ BREAK);
         cupom.append("------------------------------"+ BREAK);
-        cupom.append( String.format("TOTAL R$ %s",dFormat.format(calcular_total()))+ BREAK);
-        cupom.append(pagamento.imprimir());
+        cupom.append( String.format("TOTAL R$ %s",decimalFormat(calcularTotal()))+ BREAK);
+        cupom.append(pagamento.imprimir()+BREAK);
+        cupom.append(dadosImposto());
         return cupom.toString();
+    }
+
+    private String decimalFormat(Double var) {
+        DecimalFormatSymbols dfs = new DecimalFormatSymbols(Locale.US);
+        dfs.setDecimalSeparator('.');
+        DecimalFormat dFormat = new DecimalFormat("0.00");
+        dFormat.setDecimalFormatSymbols(dfs);
+        return dFormat.format(var);                
     }
     
     

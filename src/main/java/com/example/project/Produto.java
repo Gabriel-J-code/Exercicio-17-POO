@@ -5,31 +5,31 @@ public class Produto {
     private int codigo;
     private String descricao;
     private String unidade;
-    private Double valor_unitario;
-    private String substituicao_tributaria;
+    private Double valorUnitario;
+    private String substituicaoTributaria;
 
-    public Produto(int codigo, String descricao, String unidade, Double valor_unitario, String substituicao_tributaria) {
+    public Produto(int codigo, String descricao, String unidade, Double valorUnitario, String substituicaoTributaria) {
         this.setCodigo(codigo);
         this.setDescricao(descricao);
         this.setUnidade(unidade);
-        this.setValor_unitario(valor_unitario);
-        this.setSubstituicao_tributaria(substituicao_tributaria);
+        this.setValorUnitario(valorUnitario);
+        this.setSubstituicaoTributaria(substituicaoTributaria);
     }
 
-    public Object getSubstituicao_tributaria() {
-        return substituicao_tributaria;
+    public Object getSubstituicaoTributaria() {
+        return substituicaoTributaria;
     }
 
-    public void setSubstituicao_tributaria(String substituicao_tributaria) {
-        this.substituicao_tributaria = substituicao_tributaria;
+    public void setSubstituicaoTributaria(String substituicaoTributaria) {
+        this.substituicaoTributaria = substituicaoTributaria;
     }
 
-    public Double getValor_unitario() {
-        return valor_unitario;
+    public Double getValorUnitario() {
+        return valorUnitario;
     }
 
-    public void setValor_unitario(Double valor_unitario) {
-        this.valor_unitario = valor_unitario;
+    public void setValorUnitario(Double valorUnitario) {
+        this.valorUnitario = valorUnitario;
     }
 
     public String getUnidade() {

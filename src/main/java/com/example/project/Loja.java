@@ -12,9 +12,9 @@ public class Loja {
     private String cnpj;
     private String inscricaoEstadual;
     private ArrayList<Venda> vendas;
+    private Imposto imposto;
 
-    public Loja(String nomeLoja, Endereco endereco, String telefone, String observacao, String cnpj,
-            String inscricaoEstadual) {
+    public Loja(String nomeLoja, Endereco endereco, String telefone, String observacao, String cnpj, String inscricaoEstadual) {
         this.nomeLoja = nomeLoja;
         this.endereco = endereco;
         this.telefone = telefone;
@@ -22,6 +22,23 @@ public class Loja {
         this.cnpj = cnpj;
         this.inscricaoEstadual = inscricaoEstadual;
         this.vendas = new ArrayList<Venda>();
+    }
+
+    public Loja(String nomeLoja, Endereco endereco, String telefone, String observacao, String cnpj,
+    String inscricaoEstadual,Imposto imposto){
+        this(nomeLoja, endereco, telefone,observacao, cnpj, inscricaoEstadual);
+        this.imposto = imposto;
+    }
+
+    public void setImposto(Imposto imposto){
+        this.imposto = imposto;
+    }
+
+    public Imposto getImposto() {
+        if (imposto.equals(null)){
+            throw new RuntimeException("A Loja não possui imposto");
+        }
+        return this.imposto;        
     }
 
     public ArrayList<Venda> getVendas() {
@@ -53,9 +70,9 @@ public class Loja {
     }
 
     public Venda vender(Calendar datahora, String ccf,String coo){
-        Venda nova_venda = new Venda(this, datahora, ccf, coo);
-        this.vendas.add(nova_venda);
-        return nova_venda;
+        Venda novaVenda = new Venda(this, datahora, ccf, coo);
+        this.vendas.add(novaVenda);
+        return novaVenda;
     }
 
 
